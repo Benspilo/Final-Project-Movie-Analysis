@@ -1,12 +1,8 @@
-#r
-
 import sqlite3
 import os
-import re
 from collections import OrderedDict
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 def setup_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
@@ -162,10 +158,6 @@ def rating_to_box(cur, conn):
     plt.title('Box Office By Individual Rating')
     plt.grid(True) 
     plt.show()
-
- 
-
-
 
 def main():
     cur, conn = setup_database('IMDB-data.db')
