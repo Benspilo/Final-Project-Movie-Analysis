@@ -10,28 +10,22 @@ import locale
 
 use_key = "k_qmvwis56"
 
-#https://imdb-api.com/API/Top250Movies/k_2rg9hfrx
-
 '''
-def get_movie_data(title):
-    endpoint='https://www.omdbapi.com/'
-    param = {}
-    param['t'] = title
-    param['r'] = 'json'
-    this_page_cache = requests_with_caching.get(endpoint, params=param)
-    return json.loads(this_page_cache.text)
-
-    *
-    No Api key was needed for this but for imbd we use 
-    param[documentation for api key] = our api key
-    then we can do requests or requests with caching (makes no difference here)
-    and add params as shown above. 
+setup_database
+Sets up the data base 
+takes in a database name, IMDB-data.db
 '''
+
 def setup_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
+
+'''
+setup_IMDB_table 
+Creates the IMDB_data table
+'''
 
 def setup_IMDB_table(cur, conn):
     #CHANGE TO IF NOT EXISTS
