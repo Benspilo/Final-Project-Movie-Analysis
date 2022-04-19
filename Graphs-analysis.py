@@ -3,12 +3,28 @@ import os
 from collections import OrderedDict
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
 
+'''
+setup_database
+takes in db_name ('imdb-data.db')
+sets up cur and conn
+returns cur and conn
+'''
 def setup_database(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
+
+'''
+films_by_month
+takes cur and conn
+selects count of number of movies from top 250 for each month
+writes data to info.TXT
+plots a bar graph comparing # of movies per month
+returns none
+'''
 
 def films_by_month(cur, conn):
     cur.execute('''
@@ -18,8 +34,12 @@ def films_by_month(cur, conn):
     ''')
     conn.commit()
     data = cur.fetchall()
-
     months_dict={}
+
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    full_path = os.path.join(base_path, 'info.TXT')
+
+    first_row= ['Film Count by Month']
 
     for i in data:
         if i[1] != 'NA':
@@ -27,6 +47,12 @@ def films_by_month(cur, conn):
 
     months = ['January','February','March','April','May','June','July','August','September','October','November','December']    
     months_ordered_dict = dict(OrderedDict(sorted(months_dict.items(),key =lambda x:months.index(x[0]))))
+
+    with open(full_path, 'w', newline='') as f:
+        output = csv.writer(f)
+        output.writerow(first_row)
+        for i in months_ordered_dict.items():
+            output.writerow([i])
 
     
     plt.bar(list(months_ordered_dict.keys()),list(months_ordered_dict.values()), color = ['darkred', 'darkorchid', 'lightskyblue', 'white', 'green', 'plum', 'red', 'lightgreen', 'navy', 'deeppink', 'yellow', 'blue'], edgecolor = 'black')
@@ -36,7 +62,7 @@ def films_by_month(cur, conn):
     plt.title('Top 250 Movies By Month') 
     plt.show()
 
-"""
+
 def rank_and_budget(cur, conn):
     cur.execute('''
     SELECT IMDB_data.Rank, Wiki_data.Budget, IMDB_data.Name 
@@ -60,9 +86,8 @@ def rank_and_budget(cur, conn):
     plt.xlabel('Budget') 
     plt.ylabel('Rank') 
     plt.title('Top 250 Movies Rank Compared to Budget') 
-    #plt.grid()
     plt.show()
-"""
+
 def budget_per_min_to_ratings(cur, conn):
     cur.execute('''
     SELECT IMDB_data.Rank, Wiki_data.Budget, Wiki_data.Length 
@@ -74,6 +99,9 @@ def budget_per_min_to_ratings(cur, conn):
     data=cur.fetchall()
     rank_dict = {}
 
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    full_path = os.path.join(base_path, 'info2.TXT')
+
     for i in data:
         budget = int(i[1])
         length = int(i[2])
@@ -81,10 +109,18 @@ def budget_per_min_to_ratings(cur, conn):
             budget_over_length = budget/length
             rank_dict[i[0]] = int(round(budget_over_length, 0))
 
+    first_row = ['Rank of Films By Budget Per Minute']
+
+    with open(full_path, 'w', newline='') as f:
+        output = csv.writer(f)
+        output.writerow(first_row)
+        for i in rank_dict.items():
+            output.writerow([i])
+
     x = np.array(list(rank_dict.keys()))
     y= np.array(list(rank_dict.values()))
   
-    plt.scatter((rank_dict.keys()), rank_dict.values())
+    plt.scatter((rank_dict.keys()), rank_dict.values(), c = y, cmap = 'cividis')
     m, b = np.polyfit(x, y, 1) 
     plt.plot(x, m*x+b)
     plt.xticks(rotation=70) 
@@ -135,20 +171,16 @@ def rating_to_box(cur, conn):
     ''')
     conn.commit()
     data=cur.fetchall()
-    
     data_dict = {}
-    color_dict = {}
 
     for i in data:
         box = int(i[0])
         rating = i[1]
         if box != 0:
             data_dict[box] = rating
-            color_dict[rating] = 0
 
     x = np.array(list(data_dict.keys()))
     y= np.array(list(data_dict.values()))
-    z= list(color_dict.keys())
 
     plt.scatter((data_dict.keys()), data_dict.values(), c=y)
     m, b = np.polyfit(x, y, 1) 
@@ -162,7 +194,7 @@ def rating_to_box(cur, conn):
 def main():
     cur, conn = setup_database('IMDB-data.db')
     print(films_by_month(cur,conn))
-    #print(rank_and_budget(cur, conn))
+    print(rank_and_budget(cur, conn))
     print(budget_per_min_to_ratings(cur,conn))
     print(budget_per_min_to_box(cur,conn))
     print(rating_to_box(cur, conn))
