@@ -36,6 +36,7 @@ def films_by_month(cur, conn):
     plt.title('Top 250 Movies By Month') 
     plt.show()
 
+"""
 def rank_and_budget(cur, conn):
     cur.execute('''
     SELECT IMDB_data.Rank, Wiki_data.Budget, IMDB_data.Name 
@@ -82,8 +83,7 @@ def budget_per_min_to_ratings(cur, conn):
 
     x = np.array(list(rank_dict.keys()))
     y= np.array(list(rank_dict.values()))
-
-    r = np.sqrt(x ** 2 + y ** 2)  
+  
     plt.scatter((rank_dict.keys()), rank_dict.values())
     m, b = np.polyfit(x, y, 1) 
     plt.plot(x, m*x+b)
@@ -93,8 +93,8 @@ def budget_per_min_to_ratings(cur, conn):
     plt.title('Rank of Films By Budget Per Minute') 
     plt.grid()
     plt.show()
-    return r
-"""
+
+
 
 def budget_per_min_to_box(cur, conn):
     cur.execute('''
@@ -162,8 +162,8 @@ def rating_to_box(cur, conn):
 def main():
     cur, conn = setup_database('IMDB-data.db')
     print(films_by_month(cur,conn))
-    print(rank_and_budget(cur, conn))
-    #print(budget_per_min_to_ratings(cur,conn))
+    #print(rank_and_budget(cur, conn))
+    print(budget_per_min_to_ratings(cur,conn))
     print(budget_per_min_to_box(cur,conn))
     print(rating_to_box(cur, conn))
 
