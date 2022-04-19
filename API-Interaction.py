@@ -14,6 +14,7 @@ use_key = "k_qmvwis56"
 setup_database
 Sets up the data base 
 takes in a database name, IMDB-data.db
+returns cur and conn
 '''
 
 def setup_database(db_name):
@@ -24,7 +25,10 @@ def setup_database(db_name):
 
 '''
 setup_IMDB_table 
-Creates the IMDB_data table
+Takes in cur and conn
+Creates the IMDB_data table that holds
+Name, id, rank, year, rating
+returns none
 '''
 
 def setup_IMDB_table(cur, conn):
@@ -32,9 +36,26 @@ def setup_IMDB_table(cur, conn):
     cur.execute("CREATE TABLE IF NOT EXISTS IMDB_data (Name TEXT PRIMARY KEY, id TEXT, Rank INTEGER , Year INTEGER, Rating NUMERIC)")
     conn.commit()
 
+'''
+setup_wiki_table 
+Takes in cur and conn
+Creates the wiki_data table that holds 
+Name, date, budget, box_office, length
+returns none
+'''
+
 def setup_wiki_table(cur, conn):
     cur.execute("CREATE TABLE IF NOT EXISTS Wiki_data (Name TEXT PRIMARY KEY, date TEXT, Budget TEXT, Box_office TEXT, Length TEXT)")
+    conn.commit()
 
+'''
+get_wiki
+function used inside of build db
+takes in film_id
+which is used to open the IMBd mojo for said movie
+From this, the data for the wiki_data table is returned
+returns info (dict of box office details)
+'''
 def get_wiki(film_id):
 
     wiki_html = "https://www.boxofficemojo.com/title/" + film_id
@@ -81,10 +102,24 @@ def get_wiki(film_id):
     info["Length"] = convert_time(time_text)  #re.search('\', time_text)[0]
 
     return info
+
+'''
+clean_num
+takes in a number that is actually a string
+this function cleans strings of numbers with commas
+returns int of number originally put in
+'''
     
 def clean_num(number):
     locale.setlocale(locale.LC_ALL, "")
     return locale.atoi(number)
+
+'''
+convert_time
+takes in time which is a string
+converts the amount of time into minutes
+returns total (total amt of minutes)
+'''
 
 def convert_time(time):
     try:
@@ -98,10 +133,15 @@ def convert_time(time):
     hournum = int(str(hours))* 60
     total = hournum + int(str(mins))
     return total
-    
 
-#regex \b\w* (month)
-#regex (\d*) (million)|(\d*) (thousand) (box office and budget)
+'''
+build_db
+takes in cur and conn
+requests top 250 movies from imbd api
+parses through data 25 movies at a time and adds them to imbd_data
+as each movie is added to db, each respective movie info from imbd mojo is added to wiki_data
+returns none
+'''
 
 def build_db(cur, conn):
     link = 'https://imdb-api.com/API/Top250Movies/' + use_key + '/'
@@ -155,6 +195,14 @@ def build_db(cur, conn):
         
         #LIMIT 25
 
+'''
+real_test
+the test we use to actually run the program
+sets up both wiki and imbd data
+inserts data into tables with build_db
+returns none
+'''
+
 def realtest():
     cur, conn = setup_database('IMDB-data.db')
     setup_IMDB_table(cur, conn)
@@ -163,12 +211,25 @@ def realtest():
     #repeat 10 times, to get all 250 datapoints
     build_db(cur, conn)
 
+'''
+faketest
+used for troubleshooting
+returns none
+'''
+
 def faketest():
     print(get_wiki("tt0325980"))
 
-
+'''
+main
+used to run real test
+'''
 
 def main():
     realtest()
     #faketest()
+    
+'''
+runs the whole project
+'''
 main()
