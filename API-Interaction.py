@@ -12,8 +12,8 @@ use_key = "k_qmvwis56"
 
 '''
 setup_database
-Sets up the data base 
-takes in a database name, IMDB-data.db
+takes in a db_name, IMDB-data.db
+sets up cur and conn
 returns cur and conn
 '''
 
