@@ -8,7 +8,7 @@ import csv
 '''
 setup_database
 takes in db_name ('imdb-data.db')
-sets up cur and conn
+sets up cur and conn (cursor and connection)
 returns cur and conn
 '''
 def setup_database(db_name):
@@ -20,6 +20,7 @@ def setup_database(db_name):
 '''
 films_by_month
 takes cur and conn
+excludes months with values of 'NA'
 selects count of number of movies from top 250 for each month
 writes data to info.TXT
 plots a bar graph comparing # of movies per month
@@ -62,6 +63,14 @@ def films_by_month(cur, conn):
     plt.title('Top 250 Movies By Month') 
     plt.show()
 
+'''
+rank_and_budget
+takes in cur and conn 
+excludes budget values of zero
+simply compares IMDB movie rank with budget
+Plots a scatter plot to show correlation
+returns none
+'''
 
 def rank_and_budget(cur, conn):
     cur.execute('''
@@ -87,6 +96,16 @@ def rank_and_budget(cur, conn):
     plt.ylabel('Rank') 
     plt.title('Top 250 Movies Rank Compared to Budget') 
     plt.show()
+
+'''
+budget_per_min_to_ratings
+takes in cur and conn
+excludes budget values of 0
+Calculates the budget per minute of films and compares it to their rank 
+writes data in info2.TXT
+plots a scatter plot with a line of best fist to show correlation
+returns none
+'''
 
 def budget_per_min_to_ratings(cur, conn):
     cur.execute('''
@@ -130,7 +149,14 @@ def budget_per_min_to_ratings(cur, conn):
     plt.grid()
     plt.show()
 
-
+'''
+budget_per_min_to_box
+takes in cur and conn
+excludes box office and budget values of 0
+calculates budget per minute of film and compares that to box office success
+graphed on a scatterplot with line of best fit to show correlation
+returns none
+'''
 
 def budget_per_min_to_box(cur, conn):
     cur.execute('''
@@ -161,6 +187,15 @@ def budget_per_min_to_box(cur, conn):
     plt.title('Budget Per Minute of Films By Box Office') 
     #plt.grid()
     plt.show()
+
+'''
+rating_to_box
+takes in cur and conn
+excludes box office values of 0
+takes each individual rating and plots all the points w/ the same rating on that line 
+with the x axis value of budget
+returns none
+'''
 
 def rating_to_box(cur, conn):
     cur.execute('''
